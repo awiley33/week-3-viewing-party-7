@@ -2,8 +2,8 @@ require 'rails_helper'
 
 RSpec.describe 'Landing Page' do
   before :each do 
-    user1 = User.create(name: "User One", email: "user1@test.com", password: "password123", password_confirmation: "password123")
-    user2 = User.create(name: "User Two", email: "user2@test.com", password: "password123", password_confirmation: "password123")
+    @user1 = User.create(name: "User One", email: "user1@test.com", password: "password123", password_confirmation: "password123")
+    @user2 = User.create(name: "User Two", email: "user2@test.com", password: "password123", password_confirmation: "password123")
     visit root_path
   end 
 
@@ -22,20 +22,8 @@ RSpec.describe 'Landing Page' do
     expect(current_path).to eq(root_path)
   end 
 
-  it 'lists out existing users' do 
-    user1 = User.create(name: "User One", email: "user1@test.com", password: "password123", password_confirmation: "password123")
-    user2 = User.create(name: "User Two", email: "user2@test.com", password: "password123", password_confirmation: "password123")
-
-    expect(page).to have_content('Existing Users:')
-
-    within('.existing-users') do 
-      expect(page).to have_content(user1.email)
-      expect(page).to have_content(user2.email)
-    end     
-  end
-  
-  describe "log in links" do
-    it "when no session has begun, it has a link to log in or register" do
+  describe "user is not logged in" do
+    it "it has a link to log in or register" do
       expect(page).to have_link("Register as a User")
       expect(page).to have_link("Log In")
 
@@ -43,7 +31,16 @@ RSpec.describe 'Landing Page' do
 
       expect(current_path).to eq(login_path)
     end
-    it "during a user session, it has a link to log out" do
+
+    it 'shows no info about existing users' do
+      expect(page).to_not have_content('Existing Users:')
+      expect(page).to_not have_content(@user1.email)
+      expect(page).to_not have_content(@user2.email)
+    end
+  end
+
+  describe "user is logged in" do
+    it "it has a link to log out" do
       click_link "Log In"
       fill_in :email, with:'user1@test.com'
       fill_in :password, with: 'password123'
@@ -58,6 +55,21 @@ RSpec.describe 'Landing Page' do
 
       expect(page).to_not have_link("Log Out")
       expect(page).to have_link("Log In")
+    end
+
+    it 'lists out existing users email addresses' do
+      click_link "Log In"
+      fill_in :email, with:'user1@test.com'
+      fill_in :password, with: 'password123'
+      click_button "Submit"
+      visit root_path
+
+      expect(page).to have_content('Existing Users:')
+  
+      within('.existing-users') do 
+        expect(page).to have_content(@user1.email)
+        expect(page).to have_content(@user2.email)
+      end
     end
   end
 end
