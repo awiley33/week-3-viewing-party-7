@@ -3,8 +3,13 @@ class UsersController <ApplicationController
     @user = User.new()
   end 
 
-  def show 
-    @user = User.find(params[:id])
+  def show
+    if current_user
+      @user = User.find(params[:id])
+    else
+      flash[:error] = "You must be registered and logged in to access user dashboard."
+      redirect_to root_path
+    end
   end 
 
   def create 

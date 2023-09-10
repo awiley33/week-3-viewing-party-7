@@ -37,6 +37,12 @@ RSpec.describe 'Landing Page' do
       expect(page).to_not have_content(@user1.email)
       expect(page).to_not have_content(@user2.email)
     end
+
+    it "does not allow access to a user's dashboard" do
+      visit user_path(@user1)
+
+      
+    end
   end
 
   describe "user is logged in" do
